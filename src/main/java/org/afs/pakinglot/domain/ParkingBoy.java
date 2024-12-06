@@ -35,4 +35,21 @@ public class ParkingBoy {
             .orElseThrow(UnrecognizedTicketException::new);
         return parkingLotOfTheTicket.fetch(ticket);
     }
+
+    public ParkingStrategy getParkingStrategy() {
+        return parkingStrategy;
+    }
+
+    public void setParkingStrategy(ParkingStrategy parkingStrategy) {
+        this.parkingStrategy = parkingStrategy;
+    }
+
+    public List<ParkingLot> getParkingLots() {
+        return parkingLots;
+    }
+
+    public void setParkingLots(List<ParkingLot> parkingLots) {
+        this.parkingLots = parkingLots;
+    }
+
 }
