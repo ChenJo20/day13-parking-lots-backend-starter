@@ -3,9 +3,11 @@ package org.afs.pakinglot.domain;
 import org.afs.pakinglot.domain.strategies.AvailableRateStrategy;
 import org.afs.pakinglot.domain.strategies.MaxAvailableStrategy;
 import org.afs.pakinglot.domain.strategies.SequentiallyStrategy;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class ParkingLotManager {
     private final List<ParkingLot> parkingLots;
     private final List<ParkingBoy> parkingBoys;
@@ -16,6 +18,16 @@ public class ParkingLotManager {
                 new ParkingLot(2, "City Mall Garage", 12),
                 new ParkingLot(3, "Office Tower Parking", 9)
         );
+
+        this.parkingBoys = List.of(
+                new ParkingBoy(parkingLots, new SequentiallyStrategy()),
+                new ParkingBoy(parkingLots, new MaxAvailableStrategy()),
+                new ParkingBoy(parkingLots, new AvailableRateStrategy())
+        );
+    }
+
+    public ParkingLotManager(List<ParkingLot> parkingLots) {
+        this.parkingLots = parkingLots;
 
         this.parkingBoys = List.of(
                 new ParkingBoy(parkingLots, new SequentiallyStrategy()),
