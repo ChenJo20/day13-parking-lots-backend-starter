@@ -6,6 +6,7 @@ import org.afs.pakinglot.domain.Car;
 import org.afs.pakinglot.domain.ParkingLotManager;
 import org.afs.pakinglot.domain.Ticket;
 import org.afs.pakinglot.domain.dto.ParkingLotDTO;
+import org.afs.pakinglot.domain.exception.NoAvailablePositionException;
 import org.afs.pakinglot.domain.exception.UnrecognizedTicketException;
 import org.afs.pakinglot.domain.service.ParkingLotService;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
@@ -21,6 +22,7 @@ import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -51,13 +53,18 @@ public class ParkingLotControllerTest {
 
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws NoSuchFieldException, IllegalAccessException {
         parkingLotManager = new ParkingLotManager();
         // Add specific cars to the first parking lot
         Car car1 = new Car("AA-1234");
         Car car2 = new Car("BB-5678");
         parkingLotManager.getParkingLots().get(0).park(car1);
         parkingLotManager.getParkingLots().get(0).park(car2);
+
+        // Inject the new ParkingLotManager instance into ParkingLotService
+        Field managerField = ParkingLotService.class.getDeclaredField("parkingLotManager");
+        managerField.setAccessible(true);
+        managerField.set(parkingLotService, parkingLotManager);
 
     }
 
@@ -179,5 +186,28 @@ public class ParkingLotControllerTest {
                         .content(invalidPlateNumber))
                 .andExpect(status().isNotFound()))
                 .hasCauseInstanceOf(UnrecognizedTicketException.class);
+    }
+
+
+
+    @Test
+    public void shouldThrowNoAvailablePositionException_whenPark_givenNoAvailableSpots() throws Exception {
+        // Given
+        ParkCriteria criteria = new ParkCriteria();
+        criteria.setPlateNumber("DD-3456");
+        criteria.setParkingBoy("Standard");
+
+        // Fill all parking spots
+        parkingLotManager.getParkingLots().forEach(parkingLot -> {
+            while (!parkingLot.isFull()) {
+                parkingLot.park(new Car("XX-" + System.currentTimeMillis()));
+            }
+        });
+
+        // When & Then
+        assertThatThrownBy(() -> mockMvc.perform(post("/parking-lots/park")
+                        .contentType("application/json")
+                        .content(new ObjectMapper().writeValueAsString(criteria))))
+                .hasCauseInstanceOf(NoAvailablePositionException.class);
     }
 }
