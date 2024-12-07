@@ -1,6 +1,6 @@
 package org.afs.pakinglot.domain.service;
 
-import org.afs.pakinglot.criteria.ParkCriteria;
+import org.afs.pakinglot.criteria.ParkAndFetchCriteria;
 import org.afs.pakinglot.domain.*;
 import org.afs.pakinglot.domain.dto.ParkingBoyType;
 import org.afs.pakinglot.domain.dto.ParkingLotDTO;
@@ -27,7 +27,7 @@ public class ParkingLotService {
                 .collect(Collectors.toList());
     }
 
-    public Ticket parkCar(ParkCriteria criteria) {
+    public Ticket parkCar(ParkAndFetchCriteria criteria) {
         Car car = new Car(criteria.getPlateNumber());
         ParkingBoyType parkingBoyType = ParkingBoyType.fromType(criteria.getParkingBoy());
         ParkingBoy parkingBoy = switch (parkingBoyType) {
@@ -40,9 +40,11 @@ public class ParkingLotService {
     }
 
     public Car fetchCar(String plateNumber) {
+        System.out.println(plateNumber);
         List<ParkingLot> parkingLots = parkingLotManager.getParkingLots();
         for (ParkingLot parkingLot : parkingLots) {
             for (Ticket ticket : parkingLot.getTickets()) {
+                System.out.println(ticket.plateNumber());
                 if (ticket.plateNumber().equals(plateNumber)) {
                     return parkingLot.fetch(ticket);
                 }

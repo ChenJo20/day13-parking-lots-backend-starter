@@ -1,7 +1,7 @@
 package org.afs.pakinglot.domain.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.afs.pakinglot.criteria.ParkCriteria;
+import org.afs.pakinglot.criteria.ParkAndFetchCriteria;
 import org.afs.pakinglot.domain.Car;
 import org.afs.pakinglot.domain.ParkingLotManager;
 import org.afs.pakinglot.domain.Ticket;
@@ -87,7 +87,7 @@ public class ParkingLotControllerTest {
     @Test
     public void shouldParkCarInSecondParkingLot_whenPark_givenSmartParkingBoy() throws Exception {
         // Given
-        ParkCriteria criteria = new ParkCriteria();
+        ParkAndFetchCriteria criteria = new ParkAndFetchCriteria();
         criteria.setPlateNumber("CC-9012");
         criteria.setParkingBoy("Smart"); // Assuming "Standard" parking boy parks in the second parking lot
 
@@ -121,7 +121,7 @@ public class ParkingLotControllerTest {
     @ValueSource(strings = {"Standard", "Smart", "SuperSmart"})
     public void shouldParkCarAndReturnTicket_whenPark_givenParkingBoyAndPlateNumber(String parkingBoy) throws Exception {
         // Given
-        ParkCriteria criteria = new ParkCriteria();
+        ParkAndFetchCriteria criteria = new ParkAndFetchCriteria();
         criteria.setPlateNumber("CC-9012");
         criteria.setParkingBoy(parkingBoy);
 
@@ -143,18 +143,18 @@ public class ParkingLotControllerTest {
     public void shouldFetchCarFromParkingLot_whenFetch_givenPlateNumber() throws Exception {
         // Given
         String plateNumber = "CC-9012";
-        ParkCriteria parkCriteria = new ParkCriteria();
-        parkCriteria.setPlateNumber(plateNumber);
-        parkCriteria.setParkingBoy("Standard");
+        ParkAndFetchCriteria parkAndFetchCriteria = new ParkAndFetchCriteria();
+        parkAndFetchCriteria.setPlateNumber(plateNumber);
+        parkAndFetchCriteria.setParkingBoy("Standard");
         mockMvc.perform(post("/parking-lots/park")
                         .contentType("application/json")
-                        .content(new ObjectMapper().writeValueAsString(parkCriteria)))
+                        .content(new ObjectMapper().writeValueAsString(parkAndFetchCriteria)))
                 .andExpect(status().isOk());
 
         // When
         MvcResult fetchResult = mockMvc.perform(post("/parking-lots/fetch")
                         .contentType("application/json")
-                        .content(plateNumber))
+                        .content(new ObjectMapper().writeValueAsString(parkAndFetchCriteria)))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -175,12 +175,13 @@ public class ParkingLotControllerTest {
     @Test
     public void shouldThrowUnrecognizedTicketException_whenFetch_givenInvalidPlateNumber() throws Exception {
         // Given
-        String invalidPlateNumber = "ZZ-9999";
+        ParkAndFetchCriteria parkAndFetchCriteria = new ParkAndFetchCriteria();
+        parkAndFetchCriteria.setPlateNumber("ZZ-9999");
 
         // When & Then
         mockMvc.perform(post("/parking-lots/fetch")
                         .contentType("application/json")
-                        .content(invalidPlateNumber))
+                        .content(new ObjectMapper().writeValueAsString(parkAndFetchCriteria)))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertThat(result.getResponse().getContentAsString()).isEqualTo("Unrecognized ticket"));
     }
@@ -189,7 +190,7 @@ public class ParkingLotControllerTest {
     @Test
     public void shouldThrowNoAvailablePositionException_whenPark_givenNoAvailableSpots() throws Exception {
         // Given
-        ParkCriteria criteria = new ParkCriteria();
+        ParkAndFetchCriteria criteria = new ParkAndFetchCriteria();
         criteria.setPlateNumber("DD-3456");
         criteria.setParkingBoy("Standard");
 

@@ -1,6 +1,6 @@
 package org.afs.pakinglot.criteria;
 
-public class ParkCriteria {
+public class ParkAndFetchCriteria {
     private String plateNumber;
     private String parkingBoy;
 
