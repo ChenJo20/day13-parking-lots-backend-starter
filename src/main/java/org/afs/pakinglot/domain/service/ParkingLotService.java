@@ -30,20 +30,11 @@ public class ParkingLotService {
     public Ticket parkCar(ParkCriteria criteria) {
         Car car = new Car(criteria.getPlateNumber());
         ParkingBoyType parkingBoyType = ParkingBoyType.fromType(criteria.getParkingBoy());
-        ParkingBoy parkingBoy;
-
-        switch (parkingBoyType) {
-            case SMART:
-                parkingBoy = parkingLotManager.getParkingBoys().get(1);
-                break;
-            case SUPER_SMART:
-                parkingBoy = parkingLotManager.getParkingBoys().get(2);
-                break;
-            case STANDARD:
-            default:
-                parkingBoy = parkingLotManager.getParkingBoys().get(0);
-                break;
-        }
+        ParkingBoy parkingBoy = switch (parkingBoyType) {
+            case SMART -> parkingLotManager.getParkingBoys().get(1);
+            case SUPER_SMART -> parkingLotManager.getParkingBoys().get(2);
+            default -> parkingLotManager.getParkingBoys().get(0);
+        };
 
         return parkingBoy.park(car);
     }
