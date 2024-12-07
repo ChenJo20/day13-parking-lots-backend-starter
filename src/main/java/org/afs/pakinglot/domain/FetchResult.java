@@ -2,33 +2,27 @@ package org.afs.pakinglot.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-
-import java.time.LocalDateTime;
 
 public class FetchResult {
     private Car car;
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime fetchTime;
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime parkDate;
+    private String fetchTime;
+    private String parkDate;
     private long fee;
+    private long days;
+    private long minutes;
 
 
     @JsonCreator
     public FetchResult(@JsonProperty("car") Car car,
-                       @JsonProperty("fetchTime") LocalDateTime fetchTime,
-                       @JsonProperty("parkDate") LocalDateTime parkDate,
-                       @JsonProperty("fee") long fee) {
+                       @JsonProperty("fetchTime") String fetchTime,
+                       @JsonProperty("parkDate") String parkDate,
+                       @JsonProperty("fee") long fee, @JsonProperty("days") long days, @JsonProperty("minutes") long minutes) {
         this.car = car;
         this.fetchTime = fetchTime;
         this.parkDate = parkDate;
         this.fee = fee;
+        this.days = days;
+        this.minutes = minutes;
     }
 
     // Getters and setters
@@ -40,21 +34,6 @@ public class FetchResult {
         this.car = car;
     }
 
-    public LocalDateTime getFetchTime() {
-        return fetchTime;
-    }
-
-    public void setFetchTime(LocalDateTime fetchTime) {
-        this.fetchTime = fetchTime;
-    }
-
-    public LocalDateTime getParkDate() {
-        return parkDate;
-    }
-
-    public void setParkDate(LocalDateTime parkDate) {
-        this.parkDate = parkDate;
-    }
 
     public long getFee() {
         return fee;
@@ -62,5 +41,37 @@ public class FetchResult {
 
     public void setFee(long fee) {
         this.fee = fee;
+    }
+
+    public String getFetchTime() {
+        return fetchTime;
+    }
+
+    public void setFetchTime(String fetchTime) {
+        this.fetchTime = fetchTime;
+    }
+
+    public String getParkDate() {
+        return parkDate;
+    }
+
+    public void setParkDate(String parkDate) {
+        this.parkDate = parkDate;
+    }
+
+    public long getDays() {
+        return days;
+    }
+
+    public void setDays(long days) {
+        this.days = days;
+    }
+
+    public long getMinutes() {
+        return minutes;
+    }
+
+    public void setMinutes(long minutes) {
+        this.minutes = minutes;
     }
 }

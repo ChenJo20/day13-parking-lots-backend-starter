@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,9 +70,14 @@ public class ParkingLotService {
                     Car car = parkingLot.fetch(ticket);
                     LocalDateTime fetchTime = LocalDateTime.now();
                     Duration duration = Duration.between(ticket.parkDate(), fetchTime);
-                    long minutes = duration.toMinutes();
-                    long fee = ((minutes / 15) + minutes % 15 == 0 ? 0 : 1) * 4;
-                    return new FetchResult(car, fetchTime, ticket.parkDate(), fee);
+                    long minutes = duration.toMinutes() + 1;
+                    long fee = ((minutes / 15) + (minutes % 15 == 0 ? 0 : 1)) * 4;
+                    long days = minutes / 1440;
+                    minutes = minutes % 1440;
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                    String formattedFetchTime = fetchTime.format(formatter);
+                    String formattedParkDate = ticket.parkDate().format(formatter);
+                    return new FetchResult(car, formattedFetchTime, formattedParkDate, fee, days, minutes);
                 }
             }
         }
