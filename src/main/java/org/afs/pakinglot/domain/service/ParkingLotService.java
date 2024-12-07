@@ -1,13 +1,10 @@
 package org.afs.pakinglot.domain.service;
 
 import org.afs.pakinglot.criteria.ParkCriteria;
-import org.afs.pakinglot.domain.Car;
-import org.afs.pakinglot.domain.ParkingBoy;
-import org.afs.pakinglot.domain.ParkingLotManager;
-import org.afs.pakinglot.domain.Ticket;
+import org.afs.pakinglot.domain.*;
 import org.afs.pakinglot.domain.dto.ParkingBoyType;
 import org.afs.pakinglot.domain.dto.ParkingLotDTO;
-import org.afs.pakinglot.domain.dto.TicketDTO;
+import org.afs.pakinglot.domain.exception.UnrecognizedTicketException;
 import org.afs.pakinglot.domain.mapper.ParkingLotMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,5 +46,17 @@ public class ParkingLotService {
         }
 
         return parkingBoy.park(car);
+    }
+
+    public Car fetchCar(String plateNumber) {
+        List<ParkingLot> parkingLots = parkingLotManager.getParkingLots();
+        for (ParkingLot parkingLot : parkingLots) {
+            for (Ticket ticket : parkingLot.getTickets()) {
+                if (ticket.plateNumber().equals(plateNumber)) {
+                    return parkingLot.fetch(ticket);
+                }
+            }
+        }
+        throw new UnrecognizedTicketException();
     }
 }

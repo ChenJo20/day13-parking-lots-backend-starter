@@ -150,7 +150,7 @@ public class ParkingLotControllerTest {
         // When
         MvcResult fetchResult = mockMvc.perform(post("/parking-lots/fetch")
                         .contentType("application/json")
-                        .content("{\"plateNumber\":\"" + plateNumber + "\"}"))
+                        .content(plateNumber))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -176,7 +176,7 @@ public class ParkingLotControllerTest {
         // When & Then
         assertThatThrownBy(() -> mockMvc.perform(post("/parking-lots/fetch")
                         .contentType("application/json")
-                        .content("{\"plateNumber\":\"" + invalidPlateNumber + "\"}"))
+                        .content(invalidPlateNumber))
                 .andExpect(status().isNotFound()))
                 .hasCauseInstanceOf(UnrecognizedTicketException.class);
     }
