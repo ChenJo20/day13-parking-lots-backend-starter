@@ -6,8 +6,6 @@ import org.afs.pakinglot.domain.Car;
 import org.afs.pakinglot.domain.ParkingLotManager;
 import org.afs.pakinglot.domain.Ticket;
 import org.afs.pakinglot.domain.dto.ParkingLotDTO;
-import org.afs.pakinglot.domain.exception.NoAvailablePositionException;
-import org.afs.pakinglot.domain.exception.UnrecognizedTicketException;
 import org.afs.pakinglot.domain.service.ParkingLotService;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +23,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -181,13 +178,12 @@ public class ParkingLotControllerTest {
         String invalidPlateNumber = "ZZ-9999";
 
         // When & Then
-        assertThatThrownBy(() -> mockMvc.perform(post("/parking-lots/fetch")
+        mockMvc.perform(post("/parking-lots/fetch")
                         .contentType("application/json")
                         .content(invalidPlateNumber))
-                .andExpect(status().isNotFound()))
-                .hasCauseInstanceOf(UnrecognizedTicketException.class);
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertThat(result.getResponse().getContentAsString()).isEqualTo("Unrecognized ticket"));
     }
-
 
 
     @Test
@@ -205,9 +201,10 @@ public class ParkingLotControllerTest {
         });
 
         // When & Then
-        assertThatThrownBy(() -> mockMvc.perform(post("/parking-lots/park")
+        mockMvc.perform(post("/parking-lots/park")
                         .contentType("application/json")
-                        .content(new ObjectMapper().writeValueAsString(criteria))))
-                .hasCauseInstanceOf(NoAvailablePositionException.class);
+                        .content(new ObjectMapper().writeValueAsString(criteria)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertThat(result.getResponse().getContentAsString()).isEqualTo("No available positions"));
     }
 }
