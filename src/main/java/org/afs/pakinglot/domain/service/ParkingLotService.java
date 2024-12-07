@@ -43,6 +43,11 @@ public class ParkingLotService {
     }
 
     private void checkPlateNumberExistence(ParkAndFetchCriteria criteria) {
+        for (ParkingLot parkingLot : parkingLotManager.getParkingLots()) {
+            for (Ticket ticket : parkingLot.getTickets()) {
+                System.out.println(ticket.plateNumber());
+            }
+        }
         String plateNumber = criteria.getPlateNumber();
         long count = parkingLotManager.getParkingLots().stream()
                 .filter(parkingLot -> parkingLot.getTickets().stream()

@@ -44,11 +44,21 @@ public class ParkingLot {
             throw new NoAvailablePositionException();
         }
 
-        Ticket ticket = new Ticket(car.plateNumber(), tickets.size() + 1, this.id);
+        int position = findFirstAvailablePosition();
+        Ticket ticket = new Ticket(car.plateNumber(), position, this.id);
         tickets.put(ticket, car);
         return ticket;
     }
 
+    public int findFirstAvailablePosition() {
+        for (int i = 1; i <= capacity; i++) {
+            int finalI = i;
+            if (tickets.keySet().stream().noneMatch(ticket -> ticket.position() == finalI)) {
+                return i;
+            }
+        }
+        throw new NoAvailablePositionException();
+    }
     public boolean isFull() {
         return capacity == tickets.size();
     }
