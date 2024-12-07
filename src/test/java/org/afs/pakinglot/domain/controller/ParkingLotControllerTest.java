@@ -3,6 +3,7 @@ package org.afs.pakinglot.domain.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.afs.pakinglot.criteria.ParkAndFetchCriteria;
 import org.afs.pakinglot.domain.Car;
+import org.afs.pakinglot.domain.FetchResult;
 import org.afs.pakinglot.domain.ParkingLotManager;
 import org.afs.pakinglot.domain.Ticket;
 import org.afs.pakinglot.domain.dto.ParkingLotDTO;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -160,7 +162,8 @@ public class ParkingLotControllerTest {
 
         // Then
         String fetchResponse = fetchResult.getResponse().getContentAsString();
-        Car fetchedCar = new ObjectMapper().readValue(fetchResponse, Car.class);
+        FetchResult fetchResultObj = new ObjectMapper().readValue(fetchResponse, FetchResult.class);
+        Car fetchedCar = fetchResultObj.getCar();
         assertThat(fetchedCar).isNotNull();
         assertThat(fetchedCar.plateNumber()).isEqualTo(plateNumber);
 
@@ -228,5 +231,31 @@ public class ParkingLotControllerTest {
                         .content(new ObjectMapper().writeValueAsString(criteria)))
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertThat(result.getResponse().getContentAsString()).isEqualTo("Plate Number exists"));
+    }
+
+    @Test
+    public void shouldCalculateFeeCorrectly_whenFetchCar_givenParkDuration() throws Exception {
+        // Given
+        ParkAndFetchCriteria criteria = new ParkAndFetchCriteria();
+        criteria.setPlateNumber("FF-1234");
+        criteria.setParkingBoy("Standard");
+
+        MvcResult parkResult = mockMvc.perform(post("/parking-lots/park")
+                        .contentType("application/json")
+                        .content(new ObjectMapper().writeValueAsString(criteria)))
+                .andExpect(status().isOk())
+                .andReturn();
+        Ticket ticket = new ObjectMapper().readValue(parkResult.getResponse().getContentAsString(), Ticket.class);
+
+        LocalDateTime parkDate = LocalDateTime.of(2023, 10, 1, 10, 0);
+        ticket = new Ticket(ticket.plateNumber(), ticket.position(), ticket.parkingLot(), parkDate);
+
+        // when
+        FetchResult fetchResult = parkingLotService.fetchCar(ticket.plateNumber());
+
+        // Then
+        assertThat(fetchResult.getFee()).isNotNull();
+        assertThat(fetchResult.getFetchTime()).isNotNull();
+        assertThat(fetchResult.getParkDate()).isNotNull();
     }
 }

@@ -4,6 +4,7 @@ package org.afs.pakinglot.domain;
 import org.afs.pakinglot.domain.exception.NoAvailablePositionException;
 import org.afs.pakinglot.domain.exception.UnrecognizedTicketException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,7 +46,7 @@ public class ParkingLot {
         }
 
         int position = findFirstAvailablePosition();
-        Ticket ticket = new Ticket(car.plateNumber(), position, this.id);
+        Ticket ticket = new Ticket(car.plateNumber(), position, this.id, LocalDateTime.now());
         tickets.put(ticket, car);
         return ticket;
     }

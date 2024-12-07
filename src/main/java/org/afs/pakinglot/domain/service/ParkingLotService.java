@@ -10,6 +10,8 @@ import org.afs.pakinglot.domain.mapper.ParkingLotMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,14 +60,18 @@ public class ParkingLotService {
         }
     }
 
-    public Car fetchCar(String plateNumber) {
+    public FetchResult fetchCar(String plateNumber) {
         System.out.println(plateNumber);
         List<ParkingLot> parkingLots = parkingLotManager.getParkingLots();
         for (ParkingLot parkingLot : parkingLots) {
             for (Ticket ticket : parkingLot.getTickets()) {
-                System.out.println(ticket.plateNumber());
                 if (ticket.plateNumber().equals(plateNumber)) {
-                    return parkingLot.fetch(ticket);
+                    Car car = parkingLot.fetch(ticket);
+                    LocalDateTime fetchTime = LocalDateTime.now();
+                    Duration duration = Duration.between(ticket.parkDate(), fetchTime);
+                    long minutes = duration.toMinutes();
+                    long fee = ((minutes / 15) + minutes % 15 == 0 ? 0 : 1) * 4;
+                    return new FetchResult(car, fetchTime, ticket.parkDate(), fee);
                 }
             }
         }

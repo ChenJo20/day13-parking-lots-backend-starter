@@ -2,6 +2,7 @@ package org.afs.pakinglot.domain.controller;
 
 import org.afs.pakinglot.criteria.ParkAndFetchCriteria;
 import org.afs.pakinglot.domain.Car;
+import org.afs.pakinglot.domain.FetchResult;
 import org.afs.pakinglot.domain.Ticket;
 import org.afs.pakinglot.domain.dto.ParkingLotDTO;
 import org.afs.pakinglot.domain.service.ParkingLotService;
@@ -33,7 +34,7 @@ public class ParkingLotController {
     }
 
     @PostMapping("/fetch")
-    public Car fetch(@RequestBody ParkAndFetchCriteria criteria) {
+    public FetchResult fetch(@RequestBody ParkAndFetchCriteria criteria) {
         return parkingLotService.fetchCar(criteria.getPlateNumber());
     }
 }
