@@ -4,6 +4,7 @@ import org.afs.pakinglot.criteria.ParkAndFetchCriteria;
 import org.afs.pakinglot.domain.*;
 import org.afs.pakinglot.domain.dto.ParkingBoyType;
 import org.afs.pakinglot.domain.dto.ParkingLotDTO;
+import org.afs.pakinglot.domain.exception.ExistPlateNumberException;
 import org.afs.pakinglot.domain.exception.UnrecognizedTicketException;
 import org.afs.pakinglot.domain.mapper.ParkingLotMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,8 @@ public class ParkingLotService {
     public Ticket parkCar(ParkAndFetchCriteria criteria) {
         Car car = new Car(criteria.getPlateNumber());
         ParkingBoyType parkingBoyType = ParkingBoyType.fromType(criteria.getParkingBoy());
+        checkPlateNumberExistence(criteria);
+
         ParkingBoy parkingBoy = switch (parkingBoyType) {
             case SMART -> parkingLotManager.getParkingBoys().get(1);
             case SUPER_SMART -> parkingLotManager.getParkingBoys().get(2);
@@ -37,6 +40,17 @@ public class ParkingLotService {
         };
 
         return parkingBoy.park(car);
+    }
+
+    private void checkPlateNumberExistence(ParkAndFetchCriteria criteria) {
+        String plateNumber = criteria.getPlateNumber();
+        long count = parkingLotManager.getParkingLots().stream()
+                .filter(parkingLot -> parkingLot.getTickets().stream()
+                        .anyMatch(ticket -> ticket.plateNumber().equals(plateNumber)))
+                .count();
+        if (count >= 1) {
+            throw new ExistPlateNumberException();
+        }
     }
 
     public Car fetchCar(String plateNumber) {
