@@ -208,4 +208,25 @@ public class ParkingLotControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(result -> assertThat(result.getResponse().getContentAsString()).isEqualTo("No available positions"));
     }
+
+    @Test
+    public void shouldThrowExistPlateNumberException_whenPark_givenDuplicatePlateNumber() throws Exception {
+        // Given
+        ParkAndFetchCriteria criteria = new ParkAndFetchCriteria();
+        criteria.setPlateNumber("DD-3456");
+        criteria.setParkingBoy("Standard");
+
+        // Park the car for the first time
+        mockMvc.perform(post("/parking-lots/park")
+                        .contentType("application/json")
+                        .content(new ObjectMapper().writeValueAsString(criteria)))
+                .andExpect(status().isOk());
+
+        // When & Then - Attempt to park the same car again
+        mockMvc.perform(post("/parking-lots/park")
+                        .contentType("application/json")
+                        .content(new ObjectMapper().writeValueAsString(criteria)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertThat(result.getResponse().getContentAsString()).isEqualTo("Plate Number exists"));
+    }
 }
