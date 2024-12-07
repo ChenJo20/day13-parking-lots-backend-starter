@@ -8,7 +8,7 @@ public class FetchResult {
     private String fetchTime;
     private String parkDate;
     private long fee;
-    private long days;
+    private long hours;
     private long minutes;
 
 
@@ -16,12 +16,12 @@ public class FetchResult {
     public FetchResult(@JsonProperty("car") Car car,
                        @JsonProperty("fetchTime") String fetchTime,
                        @JsonProperty("parkDate") String parkDate,
-                       @JsonProperty("fee") long fee, @JsonProperty("days") long days, @JsonProperty("minutes") long minutes) {
+                       @JsonProperty("fee") long fee, @JsonProperty("hours") long hours, @JsonProperty("minutes") long minutes) {
         this.car = car;
         this.fetchTime = fetchTime;
         this.parkDate = parkDate;
         this.fee = fee;
-        this.days = days;
+        this.hours = hours;
         this.minutes = minutes;
     }
 
@@ -59,12 +59,12 @@ public class FetchResult {
         this.parkDate = parkDate;
     }
 
-    public long getDays() {
-        return days;
+    public long getHours() {
+        return hours;
     }
 
-    public void setDays(long days) {
-        this.days = days;
+    public void setHours(long hours) {
+        this.hours = hours;
     }
 
     public long getMinutes() {

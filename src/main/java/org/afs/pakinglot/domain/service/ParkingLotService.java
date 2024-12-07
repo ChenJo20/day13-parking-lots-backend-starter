@@ -62,7 +62,6 @@ public class ParkingLotService {
     }
 
     public FetchResult fetchCar(String plateNumber) {
-        System.out.println(plateNumber);
         List<ParkingLot> parkingLots = parkingLotManager.getParkingLots();
         for (ParkingLot parkingLot : parkingLots) {
             for (Ticket ticket : parkingLot.getTickets()) {
@@ -72,12 +71,12 @@ public class ParkingLotService {
                     Duration duration = Duration.between(ticket.parkDate(), fetchTime);
                     long minutes = duration.toMinutes() + 1;
                     long fee = ((minutes / 15) + (minutes % 15 == 0 ? 0 : 1)) * 4;
-                    long days = minutes / 1440;
-                    minutes = minutes % 1440;
+                    long hours = minutes / 60;
+                    minutes = minutes % 60;
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
                     String formattedFetchTime = fetchTime.format(formatter);
                     String formattedParkDate = ticket.parkDate().format(formatter);
-                    return new FetchResult(car, formattedFetchTime, formattedParkDate, fee, days, minutes);
+                    return new FetchResult(car, formattedFetchTime, formattedParkDate, fee, hours, minutes);
                 }
             }
         }
